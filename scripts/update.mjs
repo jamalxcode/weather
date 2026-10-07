@@ -60,16 +60,21 @@ const key = r => r.country+'|'+r.name;
 const regions = await buildRegions();
 
 // carry over the previously published readings
-let prev = new Map();
-try { prev = new Map((await getJSON(SITE+'world.json')).regions.map(r => [key(r), r])); }
-catch (e) { console.log('No previous data, fetching everything'); }
+let prev = new Map(), lastUpdate = 0;
+try {
+  const old = await getJSON(SITE+'world.json');
+  prev = new Map(old.regions.map(r => [key(r), r])); lastUpdate = Date.parse(old.updated);
+} catch (e) { console.log('No previous data, fetching everything'); }
 for (const r of regions) { const p = prev.get(key(r)); if (p) { r.t=p.t; r.h=p.h; r.p=p.p; r.at=p.at; } }
 
+// cron-job.org and GitHub's backup schedule can both fire in one half hour; only the first one fetches
+const fresh = Date.now() - lastUpdate < 20*60*1000;
 const slice = Math.floor(Date.now() / (30*60*1000)) % SLICES;
-const todo = regions.filter((r,i) => i % SLICES === slice || r.at == null);
+const todo = regions.filter((r,i) => r.at == null || (!fresh && i % SLICES === slice));
+if (fresh) console.log('Data refreshed under 20 minutes ago, skipping the scheduled slice');
 console.log(`Refreshing ${todo.length} of ${regions.length} regions (slice ${slice})`);
 
-const now = new Date().toISOString();
+const now = todo.length ? new Date().toISOString() : new Date(lastUpdate).toISOString();
 for (let i=0; i<todo.length; i+=CHUNK) {
   const part = todo.slice(i, i+CHUNK);
   try {

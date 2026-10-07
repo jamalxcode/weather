@@ -1,8 +1,10 @@
 name: Update weather
 
 on:
+  # cron-job.org starts this every 30 minutes (workflow_dispatch). GitHub's own schedule is often
+  # late or skipped, so it is only a backup; the script skips fetching if data is under 20 minutes old.
   schedule:
-    - cron: '7,37 * * * *'   # every 30 minutes, off the busy top of the hour
+    - cron: '7,37 * * * *'   # off the busy top of the hour
   workflow_dispatch:
   push:
     branches: [main]
