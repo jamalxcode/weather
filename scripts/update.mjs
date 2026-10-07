@@ -82,5 +82,5 @@ for (let i=0; i<todo.length; i+=CHUNK) {
 
 await mkdir('site', { recursive:true });
 await writeFile('site/world.json', JSON.stringify({ updated:now, regions }));
-await copyFile('index.html', 'site/index.html');
+for (const f of ['index.html', 'logo.svg']) await copyFile(f, 'site/'+f);
 console.log('Wrote site/world.json');

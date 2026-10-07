@@ -1,4 +1,4 @@
-# World Weather Globe
+# weather.sala.company
 
 A 3D globe where every country (and every state/province of the largest countries) is colored by temperature, humidity, or rain today.
 
@@ -15,3 +15,7 @@ A 3D globe where every country (and every state/province of the largest countrie
 - Weather: [Open-Meteo](https://open-meteo.com/) (one sample point per region)
 - Borders: Natural Earth 50m admin-0 / admin-1
 - Globe: [globe.gl](https://globe.gl/)
+
+## License
+
+MIT, see [LICENSE](LICENSE).
