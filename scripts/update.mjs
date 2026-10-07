@@ -1,7 +1,7 @@
 // Builds site/world.json: region shapes + latest weather, refreshed politely.
 // Each run refreshes a rotating third of regions (plus any with no data yet),
 // so a 30-minute schedule stays well under Open-Meteo's free daily limit.
-import { mkdir, writeFile, copyFile } from 'node:fs/promises';
+import { mkdir, writeFile, copyFile, appendFile } from 'node:fs/promises';
 
 const NE = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/';
 const SITE = process.env.SITE_URL || 'https://jamalxcode.github.io/weather/';
@@ -89,3 +89,6 @@ await mkdir('site', { recursive:true });
 await writeFile('site/world.json', JSON.stringify({ updated:now, regions }));
 for (const f of ['index.html', 'logo.svg']) await copyFile(f, 'site/'+f);
 console.log('Wrote site/world.json');
+// tell the workflow whether there is anything new to publish (a push always publishes, for page changes)
+const changed = todo.length > 0 || process.env.GITHUB_EVENT_NAME === 'push';
+if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `changed=${changed}\n`);
